@@ -1,4 +1,4 @@
-require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 932:
@@ -7,12 +7,16 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 const core = __nccwpck_require__(186);
 const httpClient = __nccwpck_require__(255);
 
-async function checkRunner({ token, owner, repo, primaryRunnerLabels, fallbackRunner }) {
+async function checkRunner({ token, owner, repo, primaryRunnerLabels, fallbackRunner, isOrg }) {
   const http = new httpClient.HttpClient('http-client');
   const headers = {
     'Authorization': `Bearer ${token}`,
   };
-  const response = await http.getJson(`https://api.github.com/repos/${owner}/${repo}/actions/runners`, headers);
+  let url = `https://api.github.com/repos/${owner}/${repo}/actions/runners`;
+  if (isOrg) {
+    url = `https://api.github.com/orgs/${owner}/actions/runners`
+  }
+  const response = await http.getJson(url, headers);
 
   if (response.statusCode !== 200) {
     return { error: `Failed to get runners. Status code: ${response.statusCode}` };
@@ -46,8 +50,9 @@ async function main() {
       owner,
       repo,
       token: core.getInput('github-token', { required: true }),
-      primaryRunnerLabels: core.getInput('primary-runner', { required: true }).split(','),
+      primaryRunnerLabels: core.getInput('primary-runner', { required: true }).split(',').map(label => label.trim()).filter(Boolean),
       fallbackRunner: core.getInput('fallback-runner', { required: true }),
+      isOrg: core.getInput('is-org') === 'true',
     };
 
     const { useRunner, primaryIsOnline, error } = await checkRunner(inputs);
@@ -2931,4 +2936,3 @@ module.exports = require("util");
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=index.js.map

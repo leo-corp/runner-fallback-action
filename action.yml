@@ -1,6 +1,6 @@
 name: 'Check Runner Availability'
 description: 'Check for availability of self-hosted GitHub runners and fallback to GitHub-hosted runners if needed'
-author: '@jimmygchen'
+author: '@leo-corp'
 branding:
   icon: activity
   color: blue
@@ -14,6 +14,10 @@ inputs:
   fallback-runner:
     description: 'Name or labels of the fallback runner, e.g. ubuntu-latest'
     required: true
+  is-org:
+    description: 'Whether to check for organization runners'
+    required: false
+    default: 'false'
 outputs:
   use-runner:
     description: 'The runner to use, either the primary or the fallback runner, based on availability'
